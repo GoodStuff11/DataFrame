@@ -1,6 +1,6 @@
 #include <string>
 #include <iostream>
-#include <vector>
+#include "list.cpp"
 
 using namespace std;
 
@@ -14,7 +14,7 @@ public:
 
     int numContacts = 0;
     //array of pointers which point to an instance stores in 
-    //Network's people vector
+    //Network's people list
     Person **contacts;
 
     void addContact(Person *p){
@@ -78,7 +78,7 @@ public:
 
 class Network{
 private:
-    vector <Person> *contactPath(const Person *p0, const Person *pf,vector <Person> *contacted, vector <Person>  contactOrder,vector <int> turnList, int turn){
+    list <Person> *contactPath(const Person *p0, const Person *pf,list <Person> *contacted, list <Person> contactOrder,list<int> turnList, int turn){
         turn++;
         cout<<p0->firstName<<" "<< p0->numContacts<< endl;
         contactOrder.push_back(*p0);
@@ -89,7 +89,7 @@ private:
                 //dont go to a place that we've already been to
                 cout<<turn<<"->>"<< p0->contacts[i]->firstName<<endl;
                 if (!in(p0->contacts[i],contacted,turn+1,turnList)){
-                    vector <Person> *temp = contactPath(p0->contacts[i],pf, contacted, contactOrder,turnList,turn);
+                    list <Person> *temp = contactPath(p0->contacts[i],pf, contacted, contactOrder,turnList,turn);
                     if (temp != NULL)
                         return temp;  
                 }
@@ -97,18 +97,18 @@ private:
             }
         }else{
             //convert contactOrder into a pointer
-            vector <Person> *order = new vector <Person>();
-            for (Person p:contactOrder)
-                order->push_back(p); 
+            list <Person> *order = new list <Person>();
+            for (int i =0;i<order->size();i++)
+                order->push_back(order->at(i)); 
             return order;
         }
         return nullptr;
     }
     
 public:
-    vector <Person> *people;
+    list <Person> *people;
     Network(){
-        people = new vector <Person>();
+        people = new list <Person>();
     }
     ~Network(){
         delete people;
@@ -120,7 +120,7 @@ public:
         for(int i = 0;i<people->size();i++){
             people->at(i).removeContact(p);
             if (people->at(i) == p)
-                people->erase(people->begin() + i);
+                people->erase(i);
         }
     }
     void addRelationship(Person *p1,Person *p2){
@@ -130,22 +130,22 @@ public:
     
     void contactPath(const Person *p0,const Person *pf){
         //vector <Person> contacted;
-        vector <Person> *contacted = new vector <Person>();
+        list <Person> *contacted = new list <Person>();
         //vector <Person> contactOrder;
-        vector <Person> contactOrder;
-        vector <int> turnList;
+        list <Person> contactOrder;
+        list <int> turnList;
         int turn = 0;
 
-        vector <Person> *path = contactPath(p0,pf, contacted, contactOrder, turnList, turn);
-        for (Person p : *path){
-            cout << p.firstName << " " << p.surname << endl;
+        list <Person> *path = contactPath(p0,pf, contacted, contactOrder, turnList, turn);
+        for (int i =0;i<path->size();i++){
+            cout << path->at(i).firstName << " " << path->at(i).surname << endl;
         }
 
     }
-    bool in(const Person *val, const vector <Person> *list,const int turn, const vector <int> turnList){
+    bool in(const Person *val, const list <Person> *personList,const int turn, const list <int> turnList){
         //dont look at the last one
-        for (int i = 0 ; i < list->size()-1;i++){
-            if(list->at(i) == val && turn > turnList.at(i))
+        for (int i = 0 ; i < personList->size()-1;i++){
+            if(personList->at(i) == val && turn > turnList.at(i))
                 return true;
         }
         return false;
