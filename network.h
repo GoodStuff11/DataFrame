@@ -1,29 +1,24 @@
-#ifndef SRC_PERSON_H_
-#define SRC_PERSON_H_
+#ifndef thing
+#define thing
 
-#include <string>
 #include <iostream>
-#include "list.h"
-#include "person.h"
-using namespace std;
 
+struct Person {
+	int id;
+	char firstName[10];
+	char surname[10];
+	int age;
+	int height;
 
-class Network {
-private:
-	list< Person*> *contactPath( Person *p0,  Person *pf,
-			list< Person*> *contacted, list< Person*> contactOrder,
-			list<int> turnList, int turn);
+	int numContacts = 0;
+	//array of pointers which point to an instance stores in
+	//Network's people list
+	Person **contacts;
+	Person(char *first,char *last,int age,int height);
+	void addContact(Person *p);
+	void removeContact(Person *p);
+	bool operator==(Person *other);
 
-public:
-	list<Person> *people;
-	Network();
-	virtual ~Network();
-	void addPerson(Person p);
-	void removePerson(Person *p);
-	void addRelationship(Person *p1, Person *p2);
-	void contactPath( Person *p0,  Person *pf);
-	bool in( Person *val,  list< Person*> *personList, int turn,list<int> *turnList);
-	Person* getPerson(string firstName, string surname);
+	virtual ~Person();
 };
-
-#endif /* SRC_PERSON_H_ */
+#endif
