@@ -41,11 +41,13 @@ list<Person*> *Network::contactPath(Person *p0, Person *pf,
 
 Network::Network() {
 	people = new list<Person>();
+	relationships = 0;
 }
 Network::~Network() {
 	delete people;
 }
 void Network::addPerson(Person p) {
+	p.id = people->size();
 	people->push_back(p);
 }
 void Network::removePerson(Person *p) {
@@ -55,9 +57,14 @@ void Network::removePerson(Person *p) {
 			people->erase(i);
 	}
 }
+int Network::size(){
+	return people->size();
+}
 void Network::addRelationship(Person *p1, Person *p2) {
 	p1->addContact(p2);
 	p2->addContact(p1);
+	relationships.push_back(p1->id);
+	relationships.push_back(p2->id);
 }
 void Network::contactPath(Person *p0, Person *pf) {
 	list<Person*> *contacted = new list<Person*>();
@@ -95,7 +102,28 @@ Person* Network::getPerson(string firstName, string surname) {
 	}
 	return nullptr;
 }
+/*
+ * This function does NOT write a struct into the binary file because the
+ * struct holds pointers, which become invalid when addresses change in file
+ * reading. Rather, it writes all of the contents in order
+ * to recreate the commands used to define each person.
+ */
 void Network::write(char *filename){
+	ofstream file (filename,ios::binary);
+
+	//writing people in
+	int n = size();
+	file.write((char*)&n, sizeof(int));
+	for (int i=0;i<n;i++){
+		Person p = people->valAt(i);
+		file.write(p.firstName,sizeof(people->valAt(i).firstName));
+		file.write(p.surname,sizeof(p.surname));
+		file.write((char*)&p.age,sizeof(p.age));
+		file.write((char*)&p.height,sizeof(p.height));
+	}
+	file.write((char*)&numrelationships,sizeof(int));
+
 
 }
+
 #endif /* SRC_NETWORK_CPP_ */
