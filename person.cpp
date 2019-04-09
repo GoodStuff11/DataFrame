@@ -1,6 +1,6 @@
 #include "person.h"
 
-Person::Person(char *first,char *last,int age,double height){
+Person::Person(char *first,char *last,int age,int height){
 	firstName = first;
 	surname = last;
 	this->age = age;
@@ -47,12 +47,6 @@ void Person::removeContact(Person *p) {
 	contacts = newContacts;
 
 	numContacts--;
-}
-const bool Person::operator==(const Person *other) const {
-	if (this->surname == other->surname && this->firstName == other->firstName
-			&& this->contacts == other->contacts)
-		return true;
-	return false;
 }
 bool Person::operator==(Person *other) {
 	if (this->surname == other->surname && this->firstName == other->firstName
