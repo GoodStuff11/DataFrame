@@ -1,8 +1,10 @@
 #include "person.h"
 
-Person::Person(char *first,char *last,int age,int height){
-	firstName = first;
-	surname = last;
+Person::Person(char first[10],char last[10],int age,int height){
+	//I define id in network
+	numContacts = 0;
+	strncpy(firstName,first,10);
+	strncpy(surname,last,10);
 	this->age = age;
 	this->height = height;
 	contacts = NULL;
