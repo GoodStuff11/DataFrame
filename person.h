@@ -10,7 +10,7 @@ struct Person {
 	int age;
 	int height;
 
-	int numContacts = 0;
+	int numContacts;
 	//array of pointers which point to an instance stores in
 	//Network's people list
 	Person **contacts;
