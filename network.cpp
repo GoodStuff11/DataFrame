@@ -41,7 +41,7 @@ list<Person*> *Network::contactPath(Person *p0, Person *pf,
 
 Network::Network() {
 	people = new list<Person>();
-	relationships = 0;
+	relationships = new list<int>();
 }
 Network::~Network() {
 	delete people;
@@ -116,13 +116,21 @@ void Network::write(char *filename){
 	file.write((char*)&n, sizeof(int));
 	for (int i=0;i<n;i++){
 		Person p = people->valAt(i);
-		file.write(p.firstName,sizeof(people->valAt(i).firstName));
+		file.write(p.firstName,sizeof(p.firstName));
 		file.write(p.surname,sizeof(p.surname));
-		file.write((char*)&p.age,sizeof(p.age));
-		file.write((char*)&p.height,sizeof(p.height));
-	}
-	file.write((char*)&numrelationships,sizeof(int));
 
+		int age = p.age;
+		int height = p.height;
+		file.write((char*)&age,sizeof(int));
+		file.write((char*)&height,sizeof(int));
+	}
+	int size = relationships.size();
+	file.write((char*)(new int(size)),sizeof(int));
+	for (int i=0;i<relationships.size();i++){
+		int relationship_num = relationships.valAt(i);
+		file.write((char*)&relationship_num,sizeof(int));
+	}
+	file.close();
 
 }
 
