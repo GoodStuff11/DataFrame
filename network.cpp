@@ -33,7 +33,7 @@ list<Person*> *Network::contactPath(Person *p0, Person *pf,
 
 		for (int i = 0; i < order->size(); i++)
 			order->push_back(contactOrder.valAt(i));
-		cout << "HEYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"<< endl;
+		cout << "HEYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY" << endl;
 		return order;
 	}
 	return nullptr;
@@ -45,11 +45,13 @@ Network::Network() {
 }
 Network::~Network() {
 	delete people;
+	delete relationships;
 }
 void Network::addPerson(Person p) {
 	p.id = people->size();
 	people->push_back(p);
 }
+//doesn't rewrite id's, so wont work with writing to file
 void Network::removePerson(Person *p) {
 	for (int i = 0; i < people->size(); i++) {
 		people->refAt(i)->removeContact(p);
@@ -57,14 +59,19 @@ void Network::removePerson(Person *p) {
 			people->erase(i);
 	}
 }
-int Network::size(){
+int Network::size() {
 	return people->size();
+}
+void Network::addRelationship(int id1, int id2) {
+	Person *p1 = people->refAt(id1);
+	Person *p2 = people->refAt(id2);
+	addRelationship(p1, p2);
 }
 void Network::addRelationship(Person *p1, Person *p2) {
 	p1->addContact(p2);
 	p2->addContact(p1);
-	relationships.push_back(p1->id);
-	relationships.push_back(p2->id);
+	relationships->push_back(p1->id);
+	relationships->push_back(p2->id);
 }
 void Network::contactPath(Person *p0, Person *pf) {
 	list<Person*> *contacted = new list<Person*>();
@@ -108,30 +115,76 @@ Person* Network::getPerson(string firstName, string surname) {
  * reading. Rather, it writes all of the contents in order
  * to recreate the commands used to define each person.
  */
-void Network::write(char *filename){
-	ofstream file (filename,ios::binary);
+void Network::write(char *filename) {
+	ofstream file(filename, ios::binary);
 
 	//writing people in
 	int n = size();
-	file.write((char*)&n, sizeof(int));
-	for (int i=0;i<n;i++){
+	file.write((char*) &n, sizeof(int));
+	for (int i = 0; i < n; i++) {
 		Person p = people->valAt(i);
-		file.write(p.firstName,sizeof(p.firstName));
-		file.write(p.surname,sizeof(p.surname));
+		file.write(p.firstName, sizeof(p.firstName));
+		file.write(p.surname, sizeof(p.surname));
 
 		int age = p.age;
 		int height = p.height;
-		file.write((char*)&age,sizeof(int));
-		file.write((char*)&height,sizeof(int));
+		file.write((char*) &age, sizeof(int));
+		file.write((char*) &height, sizeof(int));
 	}
-	int size = relationships.size();
-	file.write((char*)(new int(size)),sizeof(int));
-	for (int i=0;i<relationships.size();i++){
-		int relationship_num = relationships.valAt(i);
-		file.write((char*)&relationship_num,sizeof(int));
+	int size = relationships->size();
+	file.write((char*) &size, sizeof(int));
+	for (int i = 0; i < relationships->size(); i++) {
+		int relationship_num = relationships->valAt(i);
+		file.write((char*) &relationship_num, sizeof(int));
 	}
 	file.close();
 
 }
+//appends people from binary file to existing network
+void Network::read(char* filename) {
+	ifstream file(filename, ios::binary);
 
+	int initial_size = people->size();
+	//read person from file
+	int n;
+	file.read((char*) &n, sizeof(int));
+	for (int i = 0; i < n; i++) {
+		char* first;
+		char* last;
+		int age;
+		int height;
+
+		file.read(first, 10);
+		file.read(last, 10);
+		file.read((char*) &age, sizeof(int));
+		file.read((char*) &height, sizeof(int));
+
+		addPerson(Person(first, last, age, height));
+	}
+	//read relationship from file
+	file.read((char*) &n, sizeof(int));
+	for (int i = 0; i < n; i++) {
+		int id1;
+		int id2;
+		file.read((char*) &id1, sizeof(int));
+		file.read((char*) &id2, sizeof(int));
+
+		addRelationship(id1 + initial_size, id2 + initial_size);
+	}
+	file.close();
+}
+
+void Network::printNetwork(){
+	for (int i=0;i<people->size();i++){
+		Person person = people->valAt(i);
+		cout << "Name: " << person.firstName << " " << person.surname << endl;
+		cout << "Age: " << person.age << endl;
+		cout << "Height: " << person.height << endl;
+		cout << "Contacts: " << endl;
+		for (int j =0;j<person.numContacts;j++){
+			Person *contact = person.contacts[j];
+			cout << "\t" << contact->firstName << " " << contact->surname << endl;
+		}
+	}
+}
 #endif /* SRC_NETWORK_CPP_ */
