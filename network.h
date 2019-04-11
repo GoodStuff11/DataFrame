@@ -11,12 +11,12 @@ using namespace std;
 
 class Network {
 private:
+	list<Person> *people;
+	list<int> *relationships;
 	list<Person*> *contactPath(Person *p0, Person *pf, list<Person*> *contacted,
 			list<Person*> contactOrder, list<int> turnList, int turn);
 	void addRelationship(int id1, int id2); //a user wouldn't need this
 public:
-	list<Person> *people;
-	list<int> *relationships;
 	int size();
 
 	Network();
